@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -10,27 +33,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const { Client, Events, GatewayIntentBits } = require("discord.js");
-const { token, introduction_channel, staff_channel, auth_password, } = require("./config.json");
-console.log("Starting bot...", token);
-const client = new Client({
+const dotenv = __importStar(require("dotenv"));
+const ExtendedClient_1 = require("./ExtendedClient");
+dotenv.config();
+console.log("Starting bot...");
+const client = new ExtendedClient_1.ExtendedClient({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildModeration,
-        GatewayIntentBits.GuildPresences,
         GatewayIntentBits.GuildMembers,
     ],
 });
-client.on(Events.ClientReady, () => {
-    console.log(`Logged in as ${client.user.tag}`);
-});
-client.login(token);
+client.init();
+client.login();
 client.on(Events.MessageCreate, (message) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d;
-    if (message.content === "!woof") {
-        message.reply("Woof!");
-    }
     // staff commands
     if (message.content.startsWith("!shoutban")) {
         if (!(message.member && (yield checkIfStaff(message.member)))) {
@@ -126,7 +144,7 @@ client.on(Events.MessageCreate, (message) => __awaiter(void 0, void 0, void 0, f
         }
     }
     if (message.content.startsWith("!exists")) {
-        if (message.channel.id !== staff_channel) {
+        if (message.channel.id !== process.env.staff_channel) {
             return;
         }
         const args = message.content.split(" ");
@@ -158,7 +176,7 @@ client.on(Events.GuildMemberAdd, (member) => {
     }
     member.roles.add(role);
     console.log("Sending welcome message to", member.user.tag);
-    client.channels.cache.get(introduction_channel).send("Welcome! Please reply with '!join' to get activated.");
+    client.channels.cache.get(process.env.introduction_channel).send("Welcome! Please reply with '!join' to get activated.");
     client.on(Events.MessageCreate, (message) => __awaiter(void 0, void 0, void 0, function* () {
         if (message.author.id === member.id &&
             message.content.startsWith("!join")) {
@@ -236,7 +254,7 @@ function getPassword() {
         ("0" + (nowDate.getMonth() + 1)).slice(-2) +
         "-" +
         ("0" + nowDate.getDate()).slice(-2);
-    const password = auth_password + date;
+    const password = process.env.auth_password + date;
     const hash = require("crypto")
         .createHash("sha1")
         .update(password)

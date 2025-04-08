@@ -4,13 +4,15 @@
   "main": "bot.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc && cd dist && node bot.js"
+    "start": "tsc && cd dist && node bot.js",
+    "deploy": "tsc && cd dist && node deployCommands.js"
   },
   "author": "vrydi",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "discord.js": "^14.17.3",
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.7",
     "tsx": "^4.19.2"
   },
   "devDependencies": {

@@ -1,58 +1,27 @@
 import { Guild, GuildMember, Message, TextChannel } from "discord.js";
 
 const { Client, Events, GatewayIntentBits } = require("discord.js");
-const {
-  token,
-  introduction_channel,
-  staff_channel,
-  auth_password,
-} = require("./config.json");
 
-console.log("Starting bot...", token);
+import * as dotenv from "dotenv";
+import { ExtendedClient } from "./ExtendedClient";
+dotenv.config();
 
-const client = new Client({
+console.log("Starting bot...");
+
+const client = new ExtendedClient({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildModeration,
-    GatewayIntentBits.GuildPresences,
     GatewayIntentBits.GuildMembers,
   ],
 });
 
-client.on(Events.ClientReady, () => {
-  console.log(`Logged in as ${client.user.tag}`);
-});
-
-client.login(token);
+client.init();
+client.login();
 
 client.on(Events.MessageCreate, async (message: Message) => {
-  if (message.content === "!woof") {
-    message.reply("Woof!");
-  }
-
   // staff commands
-  if (message.content.startsWith("!shoutban")) {
-    if (!(message.member && (await checkIfStaff(message.member)))) {
-      return;
-    }
-    const member = message.mentions.members?.first();
-    if (!member) {
-      message.reply("Please mention a valid member of this server");
-      return;
-    }
-    // member.timeout(1000 * 60 * 60 * 24 * 7, 'shoutbanned').then(() => {
-    member
-      .timeout(1000 * 60, "shoutbanned")
-      .then(() => {
-        message.reply(`${member.user.tag} has been shoutbanned for a week`);
-      })
-      .catch((err: any) => {
-        message.reply(`Failed to shoutban ${member.user.tag}`);
-        console.error(err);
-      });
-  }
 
   if (message.content.startsWith("!team")) {
     if (!(message.member && (await checkIfStaff(message.member)))) {
@@ -145,7 +114,7 @@ client.on(Events.MessageCreate, async (message: Message) => {
   }
 
   if (message.content.startsWith("!exists")) {
-    if (message.channel.id !== staff_channel) {
+    if (message.channel.id !== process.env.staff_channel) {
       return;
     }
     const args = message.content.split(" ");
@@ -183,9 +152,9 @@ client.on(Events.GuildMemberAdd, (member: GuildMember) => {
 
   console.log("Sending welcome message to", member.user.tag);
 
-  (client.channels.cache.get(introduction_channel) as TextChannel).send(
-    "Welcome! Please reply with '!join' to get activated."
-  );
+  (
+    client.channels.cache.get(process.env.introduction_channel!) as TextChannel
+  ).send("Welcome! Please reply with '!join' to get activated.");
 
   client.on(Events.MessageCreate, async (message: Message) => {
     if (
@@ -283,7 +252,7 @@ function getPassword(): string {
     "-" +
     ("0" + nowDate.getDate()).slice(-2);
 
-  const password = auth_password + date;
+  const password = process.env.auth_password + date;
 
   const hash = require("crypto")
     .createHash("sha1")
