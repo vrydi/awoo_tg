@@ -35,18 +35,31 @@ class ExtendedClient extends discord_js_1.Client {
         }
     }
     registerCommands() {
+        var _a, _b;
         const commandFiles = (0, getFiles_1.getFiles)("./commands");
         for (const file of commandFiles) {
             const command = require(file).default;
-            if (!command.name) {
-                console.error(`Command ${file} does not have a name`);
-                continue;
+            console.debug((_a = command.data) === null || _a === void 0 ? void 0 : _a.constructor.name, file);
+            if (((_b = command.data) === null || _b === void 0 ? void 0 : _b.constructor.name) !== "SlashCommandBuilder") {
+                const split = file.replace(/\\/g, "/").split("/");
+                console.log(split, `${file.split("/")[2]}:${split[split.length - 1]
+                    .replace(".js", "")
+                    .toLowerCase()}`);
+                this.commands.set(`${file.split("/")[2]}:${split[split.length - 1]
+                    .replace(".js", "")
+                    .toLowerCase()}`, command);
             }
-            if (!command.execute) {
-                console.error(`Command ${file} does not have an execute function`);
-                continue;
+            else {
+                if (!command.name) {
+                    console.error(`Command ${file} does not have a name`);
+                    continue;
+                }
+                if (!command.execute) {
+                    console.error(`Command ${file} does not have an execute function`);
+                    continue;
+                }
+                this.commands.set(command.name, command);
             }
-            this.commands.set(command.name, command);
         }
     }
 }

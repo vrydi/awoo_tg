@@ -35,6 +35,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const { Client, Events, GatewayIntentBits } = require("discord.js");
 const dotenv = __importStar(require("dotenv"));
 const ExtendedClient_1 = require("./ExtendedClient");
+const helpers_1 = require("./helpers");
 dotenv.config();
 console.log("Starting bot...");
 const client = new ExtendedClient_1.ExtendedClient({
@@ -48,28 +49,8 @@ const client = new ExtendedClient_1.ExtendedClient({
 client.init();
 client.login();
 client.on(Events.MessageCreate, (message) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d;
     // staff commands
-    if (message.content.startsWith("!shoutban")) {
-        if (!(message.member && (yield checkIfStaff(message.member)))) {
-            return;
-        }
-        const member = (_a = message.mentions.members) === null || _a === void 0 ? void 0 : _a.first();
-        if (!member) {
-            message.reply("Please mention a valid member of this server");
-            return;
-        }
-        // member.timeout(1000 * 60 * 60 * 24 * 7, 'shoutbanned').then(() => {
-        member
-            .timeout(1000 * 60, "shoutbanned")
-            .then(() => {
-            message.reply(`${member.user.tag} has been shoutbanned for a week`);
-        })
-            .catch((err) => {
-            message.reply(`Failed to shoutban ${member.user.tag}`);
-            console.error(err);
-        });
-    }
+    var _a, _b, _c;
     if (message.content.startsWith("!team")) {
         if (!(message.member && (yield checkIfStaff(message.member)))) {
             return;
@@ -77,12 +58,12 @@ client.on(Events.MessageCreate, (message) => __awaiter(void 0, void 0, void 0, f
         const args = message.content.split(" ");
         const roleName = args[3];
         const func = args[1];
-        const member = (_b = message.mentions.members) === null || _b === void 0 ? void 0 : _b.first();
+        const member = (_a = message.mentions.members) === null || _a === void 0 ? void 0 : _a.first();
         if (!member) {
             message.reply("Please mention a valid member of this server");
             return;
         }
-        const role = (_c = message.guild) === null || _c === void 0 ? void 0 : _c.roles.cache.find((role) => role.name === roleName);
+        const role = (_b = message.guild) === null || _b === void 0 ? void 0 : _b.roles.cache.find((role) => role.name === roleName);
         if (!role) {
             message.reply(`Role '${roleName}' not found`);
             return;
@@ -122,7 +103,7 @@ client.on(Events.MessageCreate, (message) => __awaiter(void 0, void 0, void 0, f
             return;
         }
         const args = message.content.split(" ");
-        const member = (_d = message.mentions.members) === null || _d === void 0 ? void 0 : _d.first();
+        const member = (_c = message.mentions.members) === null || _c === void 0 ? void 0 : _c.first();
         args.shift();
         args.shift();
         const nickname = args.join(" ");
@@ -143,31 +124,10 @@ client.on(Events.MessageCreate, (message) => __awaiter(void 0, void 0, void 0, f
             console.error(err);
         }
     }
-    if (message.content.startsWith("!exists")) {
-        if (message.channel.id !== process.env.staff_channel) {
-            return;
-        }
-        const args = message.content.split(" ");
-        const username = args[1];
-        if (!username) {
-            message.reply("Please provide a username");
-            return;
-        }
-        // check if a user exists in the api
-        // if not, then reply with non existent user error
-        // if exists, then reply with user exists
-        doesUserExist(username).then((exists) => {
-            if (exists) {
-                message.reply(`${username} exists in the database`);
-            }
-            else {
-                message.reply(`${username} does not exist in the database`);
-            }
-        });
-    }
 }));
 client.on(Events.GuildMemberAdd, (member) => {
     console.info("New member joined", member.user.tag);
+    return;
     const role = member.guild.roles.cache.find((role) => role.name === "awaiting activation");
     console.log(role);
     if (!role) {
@@ -228,7 +188,7 @@ client.on(Events.GuildMemberAdd, (member) => {
 });
 function doesUserExist(username) {
     return __awaiter(this, void 0, void 0, function* () {
-        return fetch(`https://forums.therian-guide.com/dustycode/discordapi.php?auth=${getPassword()}&operation=testUsername&query=${username}`)
+        return fetch(`https://forums.therian-guide.com/dustycode/discordapi.php?auth=${(0, helpers_1.getPassword)()}&operation=testUsername&query=${username}`)
             .then((response) => response.json())
             .then((body) => {
             console.log("response", body);
@@ -238,7 +198,7 @@ function doesUserExist(username) {
 }
 function checkIfStaff(member) {
     return __awaiter(this, void 0, void 0, function* () {
-        const staffMembers = yield fetch(`https://forums.therian-guide.com/dustycode/discordapi.php?auth=${getPassword()}&operation=getStaff`)
+        const staffMembers = yield fetch(`https://forums.therian-guide.com/dustycode/discordapi.php?auth=${(0, helpers_1.getPassword)()}&operation=getStaff`)
             .then((response) => response.json())
             .then((body) => body.users.map((user) => user.username));
         console.log(staffMembers);
@@ -246,19 +206,4 @@ function checkIfStaff(member) {
         console.log(nickname);
         return staffMembers.includes(nickname);
     });
-}
-function getPassword() {
-    const nowDate = new Date();
-    const date = nowDate.getFullYear() +
-        "-" +
-        ("0" + (nowDate.getMonth() + 1)).slice(-2) +
-        "-" +
-        ("0" + nowDate.getDate()).slice(-2);
-    const password = process.env.auth_password + date;
-    const hash = require("crypto")
-        .createHash("sha1")
-        .update(password)
-        .digest("hex");
-    console.log("hash", hash);
-    return hash;
 }

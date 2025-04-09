@@ -8,7 +8,7 @@ export default {
     console.log(`Logged in as ${client.user.tag}`);
     console.debug(
       // @ts-ignore
-      `commands: ${client.commands.map((command) => command.name)}`
+      `commands: ${client.commands.map((command) => command.name).join(", ")}`
     );
   },
 } satisfies EventInterface<Events.ClientReady>;

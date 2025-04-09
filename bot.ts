@@ -4,6 +4,7 @@ const { Client, Events, GatewayIntentBits } = require("discord.js");
 
 import * as dotenv from "dotenv";
 import { ExtendedClient } from "./ExtendedClient";
+import { getPassword } from "./helpers";
 dotenv.config();
 
 console.log("Starting bot...");
@@ -112,34 +113,11 @@ client.on(Events.MessageCreate, async (message: Message) => {
       console.error(err);
     }
   }
-
-  if (message.content.startsWith("!exists")) {
-    if (message.channel.id !== process.env.staff_channel) {
-      return;
-    }
-    const args = message.content.split(" ");
-    const username = args[1];
-
-    if (!username) {
-      message.reply("Please provide a username");
-      return;
-    }
-
-    // check if a user exists in the api
-    // if not, then reply with non existent user error
-    // if exists, then reply with user exists
-    doesUserExist(username).then((exists) => {
-      if (exists) {
-        message.reply(`${username} exists in the database`);
-      } else {
-        message.reply(`${username} does not exist in the database`);
-      }
-    });
-  }
 });
 
 client.on(Events.GuildMemberAdd, (member: GuildMember) => {
   console.info("New member joined", member.user.tag);
+  return;
   const role = member.guild.roles.cache.find(
     (role) => role.name === "awaiting activation"
   );
@@ -148,7 +126,7 @@ client.on(Events.GuildMemberAdd, (member: GuildMember) => {
     console.error("Role 'awaiting activation' not found");
     return;
   }
-  member.roles.add(role);
+  member.roles.add(role!);
 
   console.log("Sending welcome message to", member.user.tag);
 
@@ -241,23 +219,4 @@ async function checkIfStaff(member: GuildMember): Promise<boolean> {
   const nickname = member.displayName;
   console.log(nickname);
   return staffMembers.includes(nickname);
-}
-
-function getPassword(): string {
-  const nowDate = new Date();
-  const date =
-    nowDate.getFullYear() +
-    "-" +
-    ("0" + (nowDate.getMonth() + 1)).slice(-2) +
-    "-" +
-    ("0" + nowDate.getDate()).slice(-2);
-
-  const password = process.env.auth_password + date;
-
-  const hash = require("crypto")
-    .createHash("sha1")
-    .update(password)
-    .digest("hex");
-  console.log("hash", hash);
-  return hash;
 }

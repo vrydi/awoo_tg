@@ -41,15 +41,32 @@ export class ExtendedClient extends Client {
 
     for (const file of commandFiles) {
       const command = require(file).default;
-      if (!command.name) {
-        console.error(`Command ${file} does not have a name`);
-        continue;
+      console.debug(command.data?.constructor.name, file);
+      if (command.data?.constructor.name !== "SlashCommandBuilder") {
+        const split = file.replace(/\\/g, "/").split("/");
+        console.log(
+          split,
+          `${file.split("/")[2]}:${split[split.length - 1]
+            .replace(".js", "")
+            .toLowerCase()}`
+        );
+        this.commands.set(
+          `${file.split("/")[2]}:${split[split.length - 1]
+            .replace(".js", "")
+            .toLowerCase()}`,
+          command
+        );
+      } else {
+        if (!command.name) {
+          console.error(`Command ${file} does not have a name`);
+          continue;
+        }
+        if (!command.execute) {
+          console.error(`Command ${file} does not have an execute function`);
+          continue;
+        }
+        this.commands.set(command.name, command);
       }
-      if (!command.execute) {
-        console.error(`Command ${file} does not have an execute function`);
-        continue;
-      }
-      this.commands.set(command.name, command);
     }
   }
 }

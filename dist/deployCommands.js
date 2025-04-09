@@ -40,17 +40,35 @@ dotenv.config();
 const commands = [];
 (0, getFiles_1.getFiles)("./commands").forEach((file) => {
     const command = require(file).default;
-    if (!command.name) {
-        console.error(`Command ${file} does not have a name`);
-        return;
+    if (command.path) {
+        const subcommands = (0, getFiles_1.getFiles)("./commands" + command.path);
+        const builder = command.data;
+        subcommands.forEach((subcommand) => {
+            const subcommandData = require(subcommand).default;
+            if (subcommandData.path) {
+                console.error(`Subcommand ${subcommand} does not have a path`);
+                return;
+            }
+            if (!subcommandData.data) {
+                console.error(`Subcommand ${subcommand} does not have data`);
+                return;
+            }
+            builder.addSubcommand(subcommandData.data);
+        });
+        commands.push(builder.toJSON());
     }
-    if (!command.execute) {
-        console.error(`Command ${file} does not have an execute function`);
-        return;
+    else if (command.data && command.data instanceof discord_js_1.SlashCommandBuilder) {
+        if (!command.name) {
+            console.error(`Command ${file} does not have a name`);
+            return;
+        }
+        if (!command.execute) {
+            console.error(`Command ${file} does not have an execute function`);
+            return;
+        }
+        commands.push(command.data.toJSON());
     }
     console.log(`Deploying command: ${command.name}`);
-    const data = command.data.toJSON();
-    commands.push(data);
 });
 console.log(`Deploying ${commands.length} commands...`);
 const rest = new REST().setToken(process.env.DISCORD_TOKEN);

@@ -11,12 +11,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 exports.default = {
-    name: discord_js_1.Events.ClientReady,
-    once: true,
-    execute: (client) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(`Logged in as ${client.user.tag}`);
-        console.debug(
-        // @ts-ignore
-        `commands: ${client.commands.map((command) => command.name).join(", ")}`);
+    name: discord_js_1.Events.GuildMemberAdd,
+    once: false,
+    execute: (member) => __awaiter(void 0, void 0, void 0, function* () {
+        yield member.roles.add(process.env.verified_role);
+        member.client.channels.cache.get(process.env.introduction_channel).send({
+            content: `Welcome to Therian Guide Discord ${member}! Please use the command "/join <tg username>" to get verified!`,
+        });
     }),
 };
