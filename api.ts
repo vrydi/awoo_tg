@@ -12,7 +12,7 @@ export const clientInstance = (c: ExtendedClient) => {
 
 const app = express();
 
-app.listen(3000, () => {
+app.listen(3000, "127.0.0.1", () => {
   console.log("API listening on port 3000");
 });
 
