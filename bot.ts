@@ -4,7 +4,8 @@ const { Client, Events, GatewayIntentBits } = require("discord.js");
 
 import * as dotenv from "dotenv";
 import { ExtendedClient } from "./ExtendedClient";
-import { getPassword } from "./helpers";
+import * as api from "./api";
+
 dotenv.config();
 
 console.log("Starting bot...");
@@ -20,3 +21,6 @@ const client = new ExtendedClient({
 
 client.init();
 client.login();
+
+api.init(); // Initialize the API with the client instance
+api.clientInstance(client); // Pass the client instance to the API
