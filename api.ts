@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { ExtendedClient } from "./ExtendedClient";
+import * as middleware from "./middleware";
 
 let client = null as ExtendedClient | null;
 
@@ -15,6 +16,7 @@ app.listen(3000, () => {
   console.log("API listening on port 3000");
 });
 
+app.use(middleware.default); // Use the middleware function to check for authentication
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
