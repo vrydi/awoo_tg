@@ -9,7 +9,9 @@ export default {
   execute: async (interaction) => {
     const sides = interaction.options.getInteger("sides") || 6;
     const result = Math.floor(Math.random() * sides) + 1;
-    return interaction.reply(`You rolled a ${result}!`);
+    return interaction.reply(
+      `You rolled a ${result} with a ${sides} sided die!`
+    );
   },
   data: new SlashCommandBuilder()
     .setName("dice")
