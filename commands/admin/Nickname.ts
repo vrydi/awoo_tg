@@ -1,4 +1,8 @@
-import { MessageFlags, SlashCommandBuilder } from "discord.js";
+import {
+  MessageFlags,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+} from "discord.js";
 import { CommandInterface } from "../../interfaces/CommandInterface";
 
 export default {
@@ -43,5 +47,6 @@ export default {
         .setName("nickname")
         .setDescription("The new nickname")
         .setRequired(true)
-    ),
+    )
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles),
 } satisfies CommandInterface;

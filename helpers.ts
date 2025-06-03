@@ -13,6 +13,5 @@ export function getPassword(): string {
     .createHash("sha1")
     .update(password)
     .digest("hex");
-  console.log("hash", hash);
   return hash;
 }

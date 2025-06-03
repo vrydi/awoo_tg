@@ -1,5 +1,7 @@
 import { MessageFlags, SlashCommandSubcommandBuilder } from "discord.js";
 import { SubcommandInterface } from "../../interfaces/SubcommandInterface";
+import { getPassword } from "../../helpers";
+import teams from "../../teams";
 
 export default {
   name: "add",
@@ -8,7 +10,7 @@ export default {
   category: "team",
   execute: async (interaction) => {
     const member = interaction.options.getMember("user");
-    const role = process.env[interaction.options.getString("role")!];
+    const role = interaction.options.getString("role");
     if (!member) {
       return interaction.reply({
         content: "Please specify a user to add.",
@@ -22,9 +24,21 @@ export default {
       });
     }
 
-    member.roles.add(role);
+    try {
+      await member.roles.add(process.env[role]!);
+    } catch (error) {}
 
-    await interaction.reply("User added to the team!");
+    await interaction.reply("User added to the team! " + role);
+    const team = teams
+      .find((team) => team.value === role)
+      ?.name.replace("_", "%20");
+
+    await fetch(
+      `https://forums.therian-guide.com/dustycode/discordapi.php?auth=${getPassword()}
+&operation=teamAdd&query=${member.nickname}&team=${team}`
+    )
+      .then((response) => response.json())
+      .then((body) => console.log("body", body));
   },
   data: new SlashCommandSubcommandBuilder()
     .setName("add")
@@ -37,6 +51,6 @@ export default {
         .setName("role")
         .setDescription("The role to assign to the user")
         .setRequired(true)
-        .addChoices({ name: "Foxies Spirit Den", value: "foxies_spirit_den" })
+        .addChoices(teams)
     ),
 } satisfies SubcommandInterface;

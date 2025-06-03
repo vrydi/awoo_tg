@@ -1,4 +1,9 @@
-import { MessageFlags, SlashCommandBuilder, TextChannel } from "discord.js";
+import {
+  MessageFlags,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+  TextChannel,
+} from "discord.js";
 import { CommandInterface } from "../../interfaces/CommandInterface";
 
 export default {
@@ -54,5 +59,6 @@ export default {
         .setName("reason")
         .setDescription("The reason for the shoutban")
         .setRequired(false)
-    ),
+    )
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles),
 } satisfies CommandInterface;
