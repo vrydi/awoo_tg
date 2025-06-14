@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS user_activity (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL,
+    date TEXT NOT NULL,
+    amount INTEGER NOT NULL
+)

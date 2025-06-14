@@ -5,6 +5,7 @@ const { Client, Events, GatewayIntentBits } = require("discord.js");
 import * as dotenv from "dotenv";
 import { ExtendedClient } from "./ExtendedClient";
 import * as api from "./api";
+import { initDb } from "./database";
 
 dotenv.config();
 
@@ -24,3 +25,4 @@ client.login();
 
 api.init(); // Initialize the API with the client instance
 api.clientInstance(client); // Pass the client instance to the API
+initDb();

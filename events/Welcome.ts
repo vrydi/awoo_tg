@@ -5,7 +5,7 @@ export default {
   name: Events.GuildMemberAdd,
   once: false,
   execute: async (member) => {
-    await member.roles.add(process.env.verified_role!);
+    await member.roles.add(process.env.awaiting_activation!);
     (
       member.client.channels.cache.get(
         process.env.introduction_channel!

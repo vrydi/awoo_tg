@@ -4,6 +4,7 @@
   "main": "bot.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc && mkdir dist\\database 2>nul && copy database\\schema.sql dist\\database\\schema.sql",
     "start": "tsc && cd dist && node bot.js",
     "deploy": "tsc && cd dist && node deployCommands.js"
   },
@@ -15,12 +16,15 @@
     "discord.js": "^14.18.0",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
     "tsx": "^4.19.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
+    "@types/sqlite3": "^5.1.0",
     "eslint": "^9.19.0"
   }
 }

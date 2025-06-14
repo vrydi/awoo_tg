@@ -7,10 +7,14 @@ export default {
   execute: async (interaction) => {
     if (!interaction.isChatInputCommand()) return;
 
+    console.log((interaction.client as ExtendedClient).commands.keys());
+
     if (interaction.options.getSubcommand(false)) {
       const subcommand = (interaction.client as ExtendedClient).commands.get(
         interaction.commandName + ":" + interaction.options.getSubcommand()
       );
+
+      console.log(subcommand);
 
       if (!subcommand) return;
 
